@@ -193,6 +193,37 @@ if os.getenv("RENDER_EXTERNAL_URL"):
     threading.Thread(target=keep_alive, daemon=True).start()
 # --------------------------------------------------
 
+# --- Auto-Register Telegram Webhooks on Startup (Production Only) ---
+def auto_register_webhooks():
+    """Register Telegram webhooks for all configured bots on production startup."""
+    base_url = os.environ.get('RENDER_EXTERNAL_URL', '').rstrip('/')
+    if not base_url:
+        return
+    with app.app_context():
+        try:
+            db.create_all()  # Ensure tables exist
+            bots = BusinessConfig.query.filter(
+                BusinessConfig.telegram_bot_token.isnot(None),
+                BusinessConfig.telegram_bot_token != ''
+            ).all()
+            for bot in bots:
+                webhook_url = f"{base_url}/telegram/webhook/{bot.config_id}"
+                try:
+                    url = f"https://api.telegram.org/bot{bot.telegram_bot_token}/setWebhook"
+                    resp = requests.post(url, json={"url": webhook_url}, timeout=10)
+                    if resp.status_code == 200 and resp.json().get('ok'):
+                        print(f"AUTO-WEBHOOK: Registered {bot.business_name} -> {webhook_url}")
+                    else:
+                        print(f"AUTO-WEBHOOK WARN: {bot.business_name} -> {resp.text[:100]}")
+                except Exception as e:
+                    print(f"AUTO-WEBHOOK ERROR ({bot.business_name}): {e}")
+        except Exception as e:
+            print(f"AUTO-WEBHOOK INIT ERROR: {e}")
+
+if os.getenv("RENDER_EXTERNAL_URL"):
+    auto_register_webhooks()
+# --------------------------------------------------
+
 # Store conversation history
 conversations = {}
 
@@ -1216,10 +1247,10 @@ def process_chat():
         
         # Fast models with native system role support
         FREE_MODELS = [
-            "google/gemini-2.0-flash-001:free",      # Primary: fast, supports system role
+            "google/gemini-2.0-flash-exp:free",       # Primary: fast, supports system role
+            "google/gemma-3-4b-it:free",              # Lightweight fallback
             "stepfun/step-3.5-flash:free",            # MoE, very fast
             "arcee-ai/trinity-large-preview:free",    # Good for chat
-            "google/gemma-3-4b-it:free",              # Fallback
         ]
         
         # OpenRouter API configuration
