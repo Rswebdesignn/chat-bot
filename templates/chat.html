@@ -1059,7 +1059,15 @@
             }
         }
 
+        // Deduplication to prevent double messages from poller + manual send
+        const recentMessages = new Set();
         function addMessage(sender, text, type = 'normal', saveLocally = true) {
+            // Very basic dedupe: skip if identical text was added in last 2 seconds
+            const msgKey = `${sender}:${text}`;
+            if (recentMessages.has(msgKey)) return null;
+            recentMessages.add(msgKey);
+            setTimeout(() => recentMessages.delete(msgKey), 3000);
+
             if (welcomeScreen) welcomeScreen.style.display = 'none';
             const messageDiv = document.createElement('div');
             messageDiv.className = `message message-${sender}`;
@@ -1115,6 +1123,8 @@
 
                 if (data.response) {
                     addMessage('bot', data.response);
+                    // Update count so poller doesn't repeat this bot response
+                    lastMessageCount += 2; // User message + Bot response
                     if (data.appointment_booked || data.response.includes('✅')) {
                         triggerCelebration();
                     }
