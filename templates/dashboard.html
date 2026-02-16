@@ -161,7 +161,7 @@
                     <h2 class="fw-bold mb-1">Welcome, {{ current_user.username }} 👋</h2>
                     <p class="text-secondary mb-0">Here's an overview of your AI business ecosystem.</p>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 dashboard-actions">
                     <div class="position-relative">
                         <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
                         <input type="text" id="searchBot" class="form-control ps-5" placeholder="Search agents..."
@@ -283,33 +283,37 @@
             </div>
         </div>
 
-        <!-- Delete Modal -->
-        <div class="modal fade" id="deleteModal{{ chatbot.id }}" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-sm">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger border-0">
-                        <h5 class="modal-title text-white"><i class="bi bi-exclamation-triangle me-1"></i> Confirm
-                            Delete</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body py-4">
-                        <p class="mb-0">Are you sure you want to delete <strong>{{ chatbot.business_name }}</strong>?
-                            All configuration and chat history will be lost.</p>
-                    </div>
-                    <div class="modal-footer border-secondary">
-                        <button type="button" class="btn btn-glass btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
-                        <form action="{{ url_for('delete_chatbot', config_id=chatbot.config_id) }}" method="POST"
-                            style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm px-3">
-                                <i class="bi bi-trash me-1"></i> Delete Permanent
-                            </button>
-                        </form>
-                    </div>
+        {% endfor %}
+    </div>
+
+    <!-- Modals Section (Outside animated cards) -->
+    {% for chatbot in chatbots %}
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal{{ chatbot.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger border-0">
+                    <h5 class="modal-title text-white"><i class="bi bi-exclamation-triangle me-1"></i> Confirm
+                        Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="mb-0">Are you sure you want to delete <strong>{{ chatbot.business_name }}</strong>?
+                        All configuration and chat history will be lost.</p>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-glass btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{ url_for('delete_chatbot', config_id=chatbot.config_id) }}" method="POST"
+                        style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm px-3">
+                            <i class="bi bi-trash me-1"></i> Delete Permanent
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
 
     <!-- Structured Recent Activity Section -->
     {% if appointments|length > 0 %}
