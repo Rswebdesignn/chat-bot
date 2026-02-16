@@ -1518,82 +1518,118 @@ def handle_telegram_update(chatbot, update):
     """
     bot_token = chatbot.telegram_bot_token
     if not bot_token:
+        print("HANDLER: No bot token, skipping")
         return False
+
+    print(f"HANDLER: Processing update: {json.dumps(update, default=str)[:300]}")
 
     # 1. HANDLE CALLBACK QUERIES (Approve / Decline / End)
     if 'callback_query' in update:
         cb = update['callback_query']
         cb_data = cb.get('data', '')
         cb_id = cb.get('id')
+        print(f"HANDLER CALLBACK: data='{cb_data}', id='{cb_id}'")
         
-        # Appointment callbacks
-        apt_match = re.match(r'apt_(approve|decline)_(\d+)', cb_data)
-        if apt_match:
-            action, apt_id = apt_match.groups()
-            appointment = Appointment.query.get(int(apt_id))
-            if appointment:
-                new_status = 'approved' if action == 'approve' else 'declined'
-                appointment.status = new_status
-                appointment.updated_at = datetime.utcnow()
-                db.session.commit()
-                status_text = '✅ Approved' if action == 'approve' else '❌ Declined'
-                answer_telegram_callback(bot_token, cb_id, f"Appointment {status_text}")
-                
-                if appointment.telegram_message_id:
-                    update_msg = (f"📅 <b>Appointment #{apt_id} — {status_text}</b>\n\n"
-                                  f"👤 <b>Name:</b> {appointment.customer_name}\n"
-                                  f"📧 <b>Email:</b> {appointment.customer_email}\n"
-                                  f"📱 <b>Mobile:</b> {appointment.customer_mobile}\n"
-                                  f"🕐 <b>Time:</b> {appointment.preferred_time}")
-                    edit_telegram_message(bot_token, chatbot.telegram_chat_id, appointment.telegram_message_id, update_msg)
-            return True
-
-        # Handoff Accept/Decline
-        ho_match = re.match(r'ho_(accept|decline)_(\d+)', cb_data)
-        if ho_match:
-            action, req_id = ho_match.groups()
-            req = HandoffRequest.query.get(int(req_id))
-            if req:
-                conv = Conversation.query.filter_by(session_id=req.session_id).first()
-                if conv:
-                    if action == 'accept':
-                        if conv.handoff_status != 'ACTIVE':
-                            conv.handoff_status = 'ACTIVE'
-                            chatbot.active_handoff_session = req.session_id
-                            msg_to_owner = "🤝 **Handoff Accepted!** Tunnel active.\nUse `/r {id} {msg}` to reply or `/end {id}` to finish."
-                            conv.add_message("assistant", "✅ **Connection successful!** A real person has joined the chat. How can we help you?", deduplicate=True)
-                            conv.agent_response_pending = False
-                            db.session.commit()
-                            answer_telegram_callback(bot_token, cb_id, "Accepted")
-                            send_telegram_notification(bot_token, chatbot.telegram_chat_id, msg_to_owner)
-                        else:
-                            answer_telegram_callback(bot_token, cb_id, "Already active")
-                    else:
-                        if conv.handoff_status is not None:
-                            conv.handoff_status = None
-                            msg_to_owner = "❌ Handoff Declined."
-                            conv.add_message("assistant", "I'm sorry, no person is available right now. Please try again later.", deduplicate=True)
-                            db.session.commit()
-                            answer_telegram_callback(bot_token, cb_id, "Declined")
-                            send_telegram_notification(bot_token, chatbot.telegram_chat_id, msg_to_owner)
-            return True
-
-        # Handoff End
-        ho_end_match = re.match(r'ho_end_(\d+)', cb_data)
-        if ho_end_match:
-            req_id = ho_end_match.group(1)
-            req = HandoffRequest.query.get(int(req_id))
-            if req:
-                conv = Conversation.query.filter_by(session_id=req.session_id).first()
-                if conv:
-                    conv.handoff_status = None
-                    conv.add_message("assistant", "🔒 **The human agent has left the chat.** AI mode is back on.", deduplicate=True)
-                    if chatbot.active_handoff_session == req.session_id:
-                        chatbot.active_handoff_session = None
+        # CRITICAL: Always answer the callback FIRST to dismiss Telegram's loading spinner
+        # Then do the business logic. If business logic fails, at least the spinner stops.
+        try:
+            # Appointment callbacks
+            apt_match = re.match(r'apt_(approve|decline)_(\d+)', cb_data)
+            if apt_match:
+                action, apt_id = apt_match.groups()
+                print(f"HANDLER: Appointment {action} #{apt_id}")
+                appointment = Appointment.query.get(int(apt_id))
+                if appointment:
+                    new_status = 'approved' if action == 'approve' else 'declined'
+                    appointment.status = new_status
+                    appointment.updated_at = datetime.utcnow()
                     db.session.commit()
-                    answer_telegram_callback(bot_token, cb_id, "Chat ended")
-                    send_telegram_notification(bot_token, chatbot.telegram_chat_id, f"🔒 Chat #{req_id} ended.")
-            return True
+                    status_text = '\u2705 Approved' if action == 'approve' else '\u274c Declined'
+                    answer_telegram_callback(bot_token, cb_id, f"Appointment {status_text}")
+                    print(f"HANDLER: Appointment #{apt_id} -> {new_status}")
+                    
+                    if appointment.telegram_message_id:
+                        update_msg = (f"\U0001f4c5 <b>Appointment #{apt_id} \u2014 {status_text}</b>\n\n"
+                                      f"\U0001f464 <b>Name:</b> {appointment.customer_name}\n"
+                                      f"\U0001f4e7 <b>Email:</b> {appointment.customer_email}\n"
+                                      f"\U0001f4f1 <b>Mobile:</b> {appointment.customer_mobile}\n"
+                                      f"\U0001f550 <b>Time:</b> {appointment.preferred_time}")
+                        edit_telegram_message(bot_token, chatbot.telegram_chat_id, appointment.telegram_message_id, update_msg)
+                else:
+                    answer_telegram_callback(bot_token, cb_id, f"Appointment #{apt_id} not found")
+                    print(f"HANDLER: Appointment #{apt_id} NOT FOUND in DB")
+                return True
+
+            # Handoff Accept/Decline
+            ho_match = re.match(r'ho_(accept|decline)_(\d+)', cb_data)
+            if ho_match:
+                action, req_id = ho_match.groups()
+                print(f"HANDLER: Handoff {action} #{req_id}")
+                req = HandoffRequest.query.get(int(req_id))
+                if req:
+                    conv = Conversation.query.filter_by(session_id=req.session_id).first()
+                    if conv:
+                        if action == 'accept':
+                            if conv.handoff_status != 'ACTIVE':
+                                conv.handoff_status = 'ACTIVE'
+                                chatbot.active_handoff_session = req.session_id
+                                conv.add_message("assistant", "\u2705 **Connection successful!** A real person has joined the chat. How can we help you?", deduplicate=True)
+                                conv.agent_response_pending = False
+                                db.session.commit()
+                                answer_telegram_callback(bot_token, cb_id, "Accepted")
+                                msg_to_owner = f"\U0001f91d Handoff Accepted! Tunnel active.\nUse /r {req_id} <msg> to reply or /end {req_id} to finish."
+                                send_telegram_notification(bot_token, chatbot.telegram_chat_id, msg_to_owner)
+                                print(f"HANDLER: Handoff #{req_id} ACCEPTED")
+                            else:
+                                answer_telegram_callback(bot_token, cb_id, "Already active")
+                        else:
+                            if conv.handoff_status is not None:
+                                conv.handoff_status = None
+                                conv.add_message("assistant", "I'm sorry, no person is available right now. Please try again later.", deduplicate=True)
+                                db.session.commit()
+                                answer_telegram_callback(bot_token, cb_id, "Declined")
+                                send_telegram_notification(bot_token, chatbot.telegram_chat_id, "\u274c Handoff Declined.")
+                                print(f"HANDLER: Handoff #{req_id} DECLINED")
+                    else:
+                        answer_telegram_callback(bot_token, cb_id, "Session not found")
+                        print(f"HANDLER: Conversation for handoff #{req_id} NOT FOUND")
+                else:
+                    answer_telegram_callback(bot_token, cb_id, "Request not found")
+                    print(f"HANDLER: HandoffRequest #{req_id} NOT FOUND in DB")
+                return True
+
+            # Handoff End
+            ho_end_match = re.match(r'ho_end_(\d+)', cb_data)
+            if ho_end_match:
+                req_id = ho_end_match.group(1)
+                print(f"HANDLER: Handoff end #{req_id}")
+                req = HandoffRequest.query.get(int(req_id))
+                if req:
+                    conv = Conversation.query.filter_by(session_id=req.session_id).first()
+                    if conv:
+                        conv.handoff_status = None
+                        conv.add_message("assistant", "\U0001f512 **The human agent has left the chat.** AI mode is back on.", deduplicate=True)
+                        if chatbot.active_handoff_session == req.session_id:
+                            chatbot.active_handoff_session = None
+                        db.session.commit()
+                        answer_telegram_callback(bot_token, cb_id, "Chat ended")
+                        send_telegram_notification(bot_token, chatbot.telegram_chat_id, f"\U0001f512 Chat #{req_id} ended.")
+                else:
+                    answer_telegram_callback(bot_token, cb_id, "Request not found")
+                return True
+            
+            # Unknown callback — still answer it to clear the spinner
+            answer_telegram_callback(bot_token, cb_id, "Unknown action")
+            print(f"HANDLER: Unknown callback data: {cb_data}")
+            
+        except Exception as e:
+            # CRITICAL: Even on error, ALWAYS answer the callback to stop the loading spinner
+            print(f"HANDLER CALLBACK ERROR: {e}")
+            try:
+                answer_telegram_callback(bot_token, cb_id, f"Error: {str(e)[:50]}")
+            except:
+                pass
+        return True
 
     # 2. HANDLE TEXT MESSAGES (Tunneling / Commands)
     if 'message' in update and 'text' in update['message']:
