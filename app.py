@@ -193,35 +193,53 @@ if os.getenv("RENDER_EXTERNAL_URL"):
     threading.Thread(target=keep_alive, daemon=True).start()
 # --------------------------------------------------
 
-# --- Auto-Register Telegram Webhooks on Startup (Production Only) ---
-def auto_register_webhooks():
-    """Register Telegram webhooks for all configured bots on production startup."""
+# --- Auto-Register Telegram Webhooks (runs once per Gunicorn worker on first request) ---
+def _register_all_webhooks():
+    """Register Telegram webhooks for all configured bots. Safe to call multiple times."""
     base_url = os.environ.get('RENDER_EXTERNAL_URL', '').rstrip('/')
     if not base_url:
+        print("WEBHOOK-REG: No RENDER_EXTERNAL_URL set, skipping.")
         return
-    with app.app_context():
-        try:
-            db.create_all()  # Ensure tables exist
-            bots = BusinessConfig.query.filter(
-                BusinessConfig.telegram_bot_token.isnot(None),
-                BusinessConfig.telegram_bot_token != ''
-            ).all()
-            for bot in bots:
-                webhook_url = f"{base_url}/telegram/webhook/{bot.config_id}"
-                try:
-                    url = f"https://api.telegram.org/bot{bot.telegram_bot_token}/setWebhook"
-                    resp = requests.post(url, json={"url": webhook_url}, timeout=10)
-                    if resp.status_code == 200 and resp.json().get('ok'):
-                        print(f"AUTO-WEBHOOK: Registered {bot.business_name} -> {webhook_url}")
-                    else:
-                        print(f"AUTO-WEBHOOK WARN: {bot.business_name} -> {resp.text[:100]}")
-                except Exception as e:
-                    print(f"AUTO-WEBHOOK ERROR ({bot.business_name}): {e}")
-        except Exception as e:
-            print(f"AUTO-WEBHOOK INIT ERROR: {e}")
+    try:
+        bots = BusinessConfig.query.filter(
+            BusinessConfig.telegram_bot_token.isnot(None),
+            BusinessConfig.telegram_bot_token != ''
+        ).all()
+        print(f"WEBHOOK-REG: Found {len(bots)} bot(s) with Telegram tokens.")
+        for bot in bots:
+            _register_single_webhook(bot.telegram_bot_token, bot.config_id, bot.business_name, base_url)
+    except Exception as e:
+        print(f"WEBHOOK-REG ERROR: {e}")
 
-if os.getenv("RENDER_EXTERNAL_URL"):
-    auto_register_webhooks()
+def _register_single_webhook(bot_token, config_id, business_name, base_url=None):
+    """Register a single bot's webhook with Telegram."""
+    if not base_url:
+        base_url = os.environ.get('RENDER_EXTERNAL_URL', '').rstrip('/')
+    if not base_url or not bot_token:
+        return False
+    webhook_url = f"{base_url}/telegram/webhook/{config_id}"
+    try:
+        url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
+        resp = requests.post(url, json={"url": webhook_url}, timeout=10)
+        ok = resp.status_code == 200 and resp.json().get('ok')
+        if ok:
+            print(f"WEBHOOK-REG: ✅ {business_name} -> {webhook_url}")
+        else:
+            print(f"WEBHOOK-REG: ❌ {business_name} -> {resp.text[:150]}")
+        return ok
+    except Exception as e:
+        print(f"WEBHOOK-REG ERROR ({business_name}): {e}")
+        return False
+
+@app.before_request
+def _ensure_webhooks_registered_once():
+    """One-time webhook registration per Gunicorn worker process."""
+    if getattr(app, '_webhooks_done', False):
+        return  # Already ran in this worker
+    app._webhooks_done = True
+    if os.getenv('RENDER_EXTERNAL_URL'):
+        print("WEBHOOK-REG: First request in this worker — registering all webhooks...")
+        _register_all_webhooks()
 # --------------------------------------------------
 
 # Store conversation history
@@ -872,7 +890,17 @@ def manage_chatbot(config_id):
             chatbot.telegram_bot_token = bot_token
             chatbot.telegram_chat_id = chat_id
             db.session.commit()
-            flash("Telegram settings updated!", "success")
+            
+            # Auto-register webhook when saving Telegram settings
+            if bot_token:
+                base_url = os.environ.get('RENDER_EXTERNAL_URL') or request.url_root.rstrip('/')
+                wh_ok = _register_single_webhook(bot_token, chatbot.config_id, chatbot.business_name, base_url)
+                if wh_ok:
+                    flash("Telegram settings saved & webhook registered! ✅", "success")
+                else:
+                    flash("Telegram settings saved, but webhook registration failed. Try 'Force Webhook Sync'.", "warning")
+            else:
+                flash("Telegram settings updated!", "success")
             return redirect(url_for('manage_chatbot', config_id=config_id))
         
         elif action == 'setup_webhook':
@@ -1247,10 +1275,10 @@ def process_chat():
         
         # Fast models with native system role support
         FREE_MODELS = [
-            "google/gemini-2.0-flash-exp:free",       # Primary: fast, supports system role
-            "google/gemma-3-4b-it:free",              # Lightweight fallback
-            "stepfun/step-3.5-flash:free",            # MoE, very fast
-            "arcee-ai/trinity-large-preview:free",    # Good for chat
+            "stepfun/step-3.5-flash:free",            # Primary: CONFIRMED WORKING
+            "meta-llama/llama-3.3-70b-instruct:free", # High quality fallback
+            "qwen/qwen-2.5-72b-instruct:free",       # Strong multilingual
+            "mistralai/mistral-small-3.1-24b-instruct:free",  # Fast fallback
         ]
         
         # OpenRouter API configuration
