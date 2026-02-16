@@ -16,12 +16,12 @@
     const radius = config.radius || '24px';
     const width = config.width || '420px';
     const height = config.height || '680px';
+    const baseUrl = (config.baseUrl || window.location.origin).replace(/\/$/, '');
 
     // Derive lighter accent for gradients
     const accentGlow = primaryColor + '40';
 
-    const origin = window.location.origin;
-    const iframeUrl = `${origin}/chat/${config.chatbot_id}`;
+    const iframeUrl = `${baseUrl}/chat/${config.chatbot_id}`;
 
     // --- Inject global styles & fonts ---
     const style = document.createElement('style');
@@ -44,6 +44,26 @@
         @keyframes bpaflow-float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
+        }
+
+        @media (max-width: 480px) {
+            #bpaflow-chat-window {
+                width: 100vw !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                max-width: 100vw !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+            }
+            #bpaflow-widget-container.is-open {
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+            }
         }
 
         #bpaflow-widget-container * {
@@ -156,26 +176,15 @@
     launcherRow.appendChild(label);
     launcherRow.appendChild(launcher);
 
-    // --- Mobile Fullscreen ---
-    const isMobile = window.innerWidth <= 480;
-    if (isMobile) {
-        chatWindow.style.width = '100vw';
-        chatWindow.style.height = '100vh';
-        chatWindow.style.maxHeight = '100vh';
-        chatWindow.style.maxWidth = '100vw';
-        chatWindow.style.borderRadius = '0';
-        chatWindow.style.margin = '0';
-        chatWindow.style.position = 'fixed';
-        chatWindow.style.bottom = '0';
-        chatWindow.style.left = '0';
-        chatWindow.style.right = '0';
-    }
+    // --- Mobile Fullscreen logic moved to CSS ---
+
 
     // --- Toggle Logic ---
     let isOpen = false;
     const toggleChat = () => {
         isOpen = !isOpen;
         if (isOpen) {
+            container.classList.add('is-open');
             chatWindow.style.display = 'flex';
             // Force reflow for animation
             chatWindow.offsetHeight;
@@ -190,12 +199,8 @@
 
             // Hide label
             label.style.display = 'none';
-
-            if (isMobile) {
-                container.style.bottom = '0';
-                container.style[position] = '0';
-            }
         } else {
+            container.classList.remove('is-open');
             chatWindow.style.transform = 'scale(0.9) translateY(20px)';
             chatWindow.style.opacity = '0';
             setTimeout(() => { chatWindow.style.display = 'none'; }, 400);
@@ -203,11 +208,6 @@
             launcher.style.transform = 'rotate(0deg) scale(1)';
             launcher.style.animation = 'bpaflow-breathe 3s ease-in-out infinite, bpaflow-float 4s ease-in-out infinite';
             launcher.style.boxShadow = `0 6px 24px ${accentGlow}`;
-
-            if (isMobile) {
-                container.style.bottom = '24px';
-                container.style[position] = '24px';
-            }
         }
     };
 

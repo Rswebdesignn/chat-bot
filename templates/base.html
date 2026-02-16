@@ -172,6 +172,19 @@
         });
     </script>
     {% block scripts %}{% endblock %}
+    <!-- BPAFlow AI Chat Widget -->
+    <script>
+        window.BPAFlowConfig = {
+            chatbot_id: "5e10eaa3",
+            position: "right",
+            primaryColor: "#7336ce",
+            launcherText: "",
+            icon: "bi-robot",
+            radius: "24px",
+            baseUrl: "{{ request.url_root }}"
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/embed.js', _external=True) }}" async></script>
 </body>
 
 </html>
