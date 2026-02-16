@@ -77,7 +77,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid my-4 px-md-5">
+<div class="container-fluid my-4 px-4 px-md-5">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
@@ -201,742 +201,757 @@
                 </div>
             </div>
 
-    </div>
-
-    <!-- Section: Identity & Core -->
-    <section id="core" class="settings-section reveal">
-        <div class="settings-section-header">
-            <h4 class="mb-1 fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Identity & Core</h4>
-            <p class="text-secondary small mb-0">Define your agent's persona and business details.</p>
-        </div>
-        <div class="settings-section-body">
-            <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST">
-                <input type="hidden" name="action" value="save_general">
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Agent Display Name</label>
-                        <input type="text" class="form-control" name="business_name" value="{{ chatbot.business_name }}"
-                            required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Business Category</label>
-                        <select class="form-select" name="business_type">
-                            {% for type in business_types %}
-                            <option value="{{ type }}" {% if chatbot.business_type==type %}selected{% endif %}>
-                                {{ type }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Short Agent Biography / Role</label>
-                        <textarea class="form-control" name="business_description" rows="3"
-                            placeholder="e.g. A helpful real estate assistant for CityHomes.">{{ chatbot.business_description }}</textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Office Location</label>
-                        <input type="text" class="form-control" name="location" value="{{ chatbot.location }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Operating Hours</label>
-                        <input type="text" class="form-control" name="business_hours"
-                            value="{{ chatbot.business_hours }}">
-                    </div>
+            <!-- Section: Identity & Core -->
+            <section id="core" class="settings-section reveal">
+                <div class="settings-section-header">
+                    <h4 class="mb-1 fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Identity & Core</h4>
+                    <p class="text-secondary small mb-0">Define your agent's persona and business details.</p>
                 </div>
-                <div class="mt-4 text-end">
-                    <button type="submit" class="btn btn-premium px-4">Save Core Settings</button>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <!-- Section: Intelligence -->
-    <section id="intelligence" class="settings-section reveal">
-        <div class="settings-section-header">
-            <h4 class="mb-1 fw-bold"><i class="bi bi-brain me-2 text-primary"></i>The Brain (Knowledge)</h4>
-            <p class="text-secondary small mb-0">Train your agent with custom knowledge and FAQs.</p>
-        </div>
-        <div class="settings-section-body">
-            <!-- Intelligence Tabs -->
-            <ul class="nav nav-tabs-custom mb-4" id="intelligenceTabs" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active" id="faq-tab" data-bs-toggle="tab" data-bs-target="#faq-pane"
-                        type="button">
-                        <i class="bi bi-question-circle"></i> Knowledge Base
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs-pane"
-                        type="button">
-                        <i class="bi bi-journal-text"></i> Conversation Logs
-                    </button>
-                </li>
-            </ul>
-
-            <div class="tab-content" id="intelligenceTabContent">
-                <!-- FAQ Pane -->
-                <div class="tab-pane fade show active" id="faq-pane">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h6 class="fw-bold mb-0">Active FAQ Library</h6>
-                        <button type="button" class="btn btn-glass btn-sm" onclick="addFAQ()">
-                            <i class="bi bi-plus-lg me-1"></i> Add Entry
-                        </button>
-                    </div>
-
+                <div class="settings-section-body">
                     <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST">
                         <input type="hidden" name="action" value="save_general">
-                        <div id="faq-container">
-                            {% for faq in chatbot.faqs if "Who created you" not in faq.question %}
-                            <div class="faq-item reveal">
-                                <div class="remove-faq" onclick="removeFAQ(this)"><i class="bi bi-trash"></i>
-                                </div>
-                                <div class="row g-4">
-                                    <div class="col-12">
-                                        <label class="form-label">Training Question (Inbound)</label>
-                                        <input type="text" class="form-control" name="faq_question[]"
-                                            value="{{ faq.question }}" placeholder="Enter Question">
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Ideal AI Response</label>
-                                        <textarea class="form-control" name="faq_answer[]" rows="2"
-                                            placeholder="Enter Answer">{{ faq.answer }}</textarea>
-                                    </div>
-                                </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Agent Display Name</label>
+                                <input type="text" class="form-control" name="business_name"
+                                    value="{{ chatbot.business_name }}" required>
                             </div>
-                            {% endfor %}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Business Category</label>
+                                <select class="form-select" name="business_type">
+                                    {% for type in business_types %}
+                                    <option value="{{ type }}" {% if chatbot.business_type==type %}selected{% endif %}>
+                                        {{ type }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Short Agent Biography / Role</label>
+                                <textarea class="form-control" name="business_description" rows="3"
+                                    placeholder="e.g. A helpful real estate assistant for CityHomes.">{{ chatbot.business_description }}</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Office Location</label>
+                                <input type="text" class="form-control" name="location" value="{{ chatbot.location }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Operating Hours</label>
+                                <input type="text" class="form-control" name="business_hours"
+                                    value="{{ chatbot.business_hours }}">
+                            </div>
                         </div>
-
-                        <!-- Architectural Placeholders -->
-                        <div class="mt-5 p-5 rounded-4 bg-elevated border border-dashed text-center opacity-75">
-                            <i class="bi bi-file-earmark-pdf mb-3 d-block opacity-50" style="font-size: 2rem;"></i>
-                            <h5 class="fw-bold">Advanced Training Suite</h5>
-                            <p class="text-muted mb-4">Upload documents or sync your website URL to
-                                automatically train your agent.</p>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Coming
-                                Soon</button>
-                        </div>
-
                         <div class="mt-4 text-end">
-                            <button type="submit" class="btn btn-premium px-4">Update Knowledge
-                                Base</button>
+                            <button type="submit" class="btn btn-premium px-4">Save Core Settings</button>
                         </div>
                     </form>
                 </div>
+            </section>
 
-                <!-- Logs Pane -->
-                <div class="tab-pane fade" id="logs-pane">
-                    <div class="row g-0 log-viewer-container">
-                        <div class="col-md-4 log-sessions-list">
-                            <div class="p-3 border-bottom bg-elevated">
-                                <h6 class="mb-0 fw-bold small">Recent Sessions</h6>
+            <!-- Section: Intelligence -->
+            <section id="intelligence" class="settings-section reveal">
+                <div class="settings-section-header">
+                    <h4 class="mb-1 fw-bold"><i class="bi bi-brain me-2 text-primary"></i>The Brain (Knowledge)</h4>
+                    <p class="text-secondary small mb-0">Train your agent with custom knowledge and FAQs.</p>
+                </div>
+                <div class="settings-section-body">
+                    <!-- Intelligence Tabs -->
+                    <ul class="nav nav-tabs-custom mb-4" id="intelligenceTabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="faq-tab" data-bs-toggle="tab" data-bs-target="#faq-pane"
+                                type="button">
+                                <i class="bi bi-question-circle"></i> Knowledge Base
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs-pane"
+                                type="button">
+                                <i class="bi bi-journal-text"></i> Conversation Logs
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="intelligenceTabContent">
+                        <!-- FAQ Pane -->
+                        <div class="tab-pane fade show active" id="faq-pane">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="fw-bold mb-0">Active FAQ Library</h6>
+                                <button type="button" class="btn btn-glass btn-sm" onclick="addFAQ()">
+                                    <i class="bi bi-plus-lg me-1"></i> Add Entry
+                                </button>
                             </div>
-                            <div style="max-height: 480px; overflow-y: auto;">
-                                {% if chatbot.conversations %}
-                                {% for conv in chatbot.conversations|sort(attribute='last_updated',
-                                reverse=True) %}
-                                <div class="log-session-item {% if loop.first %}active{% endif %}"
-                                    data-session-id="{{ conv.id }}" onclick="showTranscript('{{ conv.id }}', this)">
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <span class="fw-bold" style="font-size: 0.7rem;">{{
-                                            conv.session_id.split('_')[-1][:10] }}...</span>
-                                        <span class="text-muted" style="font-size: 0.6rem;">{{
-                                            conv.last_updated.strftime('%H:%M') }}</span>
+
+                            <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST">
+                                <input type="hidden" name="action" value="save_general">
+                                <div id="faq-container">
+                                    {% for faq in chatbot.faqs if "Who created you" not in faq.question %}
+                                    <div class="faq-item reveal">
+                                        <div class="remove-faq" onclick="removeFAQ(this)"><i class="bi bi-trash"></i>
+                                        </div>
+                                        <div class="row g-4">
+                                            <div class="col-12">
+                                                <label class="form-label">Training Question (Inbound)</label>
+                                                <input type="text" class="form-control" name="faq_question[]"
+                                                    value="{{ faq.question }}" placeholder="Enter Question">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Ideal AI Response</label>
+                                                <textarea class="form-control" name="faq_answer[]" rows="2"
+                                                    placeholder="Enter Answer">{{ faq.answer }}</textarea>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="text-muted small text-truncate" style="font-size: 0.7rem;">
-                                        {{ conv.messages[-1].content if conv.messages else 'No messages' }}
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Architectural Placeholders -->
+                                <div class="mt-5 p-5 rounded-4 bg-elevated border border-dashed text-center opacity-75">
+                                    <i class="bi bi-file-earmark-pdf mb-3 d-block opacity-50"
+                                        style="font-size: 2rem;"></i>
+                                    <h5 class="fw-bold">Advanced Training Suite</h5>
+                                    <p class="text-muted mb-4">Upload documents or sync your website URL to
+                                        automatically train your agent.</p>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Coming
+                                        Soon</button>
+                                </div>
+
+                                <div class="mt-4 text-end">
+                                    <button type="submit" class="btn btn-premium px-4">Update Knowledge
+                                        Base</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Logs Pane -->
+                        <div class="tab-pane fade" id="logs-pane">
+                            <div class="row g-0 log-viewer-container">
+                                <div class="col-md-4 log-sessions-list">
+                                    <div class="p-3 border-bottom bg-elevated">
+                                        <h6 class="mb-0 fw-bold small">Recent Sessions</h6>
+                                    </div>
+                                    <div style="max-height: 480px; overflow-y: auto;">
+                                        {% if chatbot.conversations %}
+                                        {% for conv in chatbot.conversations|sort(attribute='last_updated',
+                                        reverse=True) %}
+                                        <div class="log-session-item {% if loop.first %}active{% endif %}"
+                                            data-session-id="{{ conv.id }}"
+                                            onclick="showTranscript('{{ conv.id }}', this)">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span class="fw-bold" style="font-size: 0.7rem;">{{
+                                                    conv.session_id.split('_')[-1][:10] }}...</span>
+                                                <span class="text-muted" style="font-size: 0.6rem;">{{
+                                                    conv.last_updated.strftime('%H:%M') }}</span>
+                                            </div>
+                                            <div class="text-muted small text-truncate" style="font-size: 0.7rem;">
+                                                {{ conv.messages[-1].content if conv.messages else 'No messages' }}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        {% else %}
+                                        <div class="p-5 text-center text-muted small">
+                                            <i class="bi bi-chat-dots d-block h2 opacity-25 mb-3"></i>
+                                            No conversations yet
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-8 log-transcript-area" id="transcriptDisplay">
+                                    {% if chatbot.conversations %}
+                                    {% set first_conv = chatbot.conversations|sort(attribute='last_updated',
+                                    reverse=True)|first %}
+                                    {% if first_conv and first_conv.messages %}
+                                    {% for msg in first_conv.messages %}
+                                    <div class="log-msg {{ msg.role }} reveal">
+                                        <div class="fw-bold small mb-1 opacity-50" style="font-size: 0.6rem;">{{
+                                            msg.role|upper }}</div>
+                                        {{ msg.content }}
+                                    </div>
+                                    {% endfor %}
+                                    {% else %}
+                                    <div class="h-100 d-flex align-items-center justify-content-center text-muted">
+                                        No
+                                        messages in this session</div>
+                                    {% endif %}
+                                    {% else %}
+                                    <div class="h-100 d-flex align-items-center justify-content-center text-muted">
+                                        Select a session to view transcript
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Hidden Templates for JS (Server-side rendered logs) -->
+                            <div id="conversationDataTemplates" style="display:none;">
+                                {% for conv in chatbot.conversations %}
+                                <div id="template-{{ conv.id }}">
+                                    {% for msg in conv.messages %}
+                                    <div class="log-msg {{ msg.role }}">
+                                        <div class="fw-bold small mb-1 opacity-50" style="font-size: 0.6rem;">{{
+                                            msg.role|upper }}</div>
+                                        {{ msg.content }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Action Center -->
+            <section id="actions" class="settings-section reveal">
+                <div class="settings-section-header">
+                    <h4 class="mb-1 fw-bold">Action Center (Booking)</h4>
+                    <p class="text-secondary small mb-0">Manage customer appointments and lead capture logic.</p>
+                </div>
+                <div class="settings-section-body">
+                    <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST"
+                        class="mb-5 pb-5 border-bottom border-secondary border-opacity-10">
+                        <input type="hidden" name="action" value="save_appointments">
+
+                        <div class="row g-4 align-items-center mb-4">
+                            <div class="col-md-8">
+                                <h6 class="fw-bold mb-1">Enable Booking Engine</h6>
+                                <p class="text-muted small mb-0">Allow customers to request appointments through the
+                                    AI
+                                    agent.</p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <div class="form-check form-switch ps-0 d-inline-block">
+                                    <input class="form-check-input ms-0" type="checkbox" name="appointment_enabled"
+                                        style="transform: scale(1.4);" {% if chatbot.appointment_enabled %}checked{%
+                                        endif %}>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Conversational Welcome Prompt</label>
+                                <input type="text" class="form-control" name="appointment_message"
+                                    value="{{ apt_config.custom_message or 'To book, please provide your details below.' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Availability Slots</label>
+                                <input type="text" class="form-control" name="appointment_slots"
+                                    value="{{ apt_config.time_slots or '9:00 AM, 11:00 AM, 2:00 PM, 4:00 PM' }}"
+                                    placeholder="e.g. 10 AM, 2 PM, 4 PM">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Dynamic Booking Rules</label>
+                                <input type="text" class="form-control" name="booking_rules"
+                                    value="{{ apt_config.booking_rules or 'Please book at least 24 hours in advance.' }}">
+                            </div>
+                        </div>
+                        <div class="mt-4 text-end">
+                            <button type="submit" class="btn btn-premium px-4">Save Configuration</button>
+                        </div>
+                    </form>
+
+                    <!-- Premium Industrial Action Center -->
+                    <div class="mt-5">
+                        <div class="d-flex justify-content-between align-items-end mb-4 px-2">
+                            <div>
+                                <h4 class="mb-1 fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i>Action
+                                    Center</h4>
+                                <p class="text-secondary small mb-0">High-density lead management & processing.</p>
+                            </div>
+                            <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST">
+                                <input type="hidden" name="action" value="appointment_action">
+                                <input type="hidden" name="apt_action" value="approve_all">
+                                <button type="submit" class="btn btn-glass btn-sm px-3">
+                                    <i class="bi bi-check-all me-1"></i> Approve All
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Bulk Actions Floating Bar -->
+                        <div id="bulkActionsBar" class="bulk-actions-bar">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllCheckboxes"
+                                        style="width: 20px; height: 20px;">
+                                </div>
+                                <span class="fw-bold" id="selectedCountText">0 selected</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-success btn-sm px-3"
+                                    onclick="submitBulkAction('approve')">
+                                    <i class="bi bi-check-circle me-1"></i> Approve
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm px-3"
+                                    onclick="submitBulkAction('decline')">
+                                    <i class="bi bi-slash-circle me-1"></i> Decline
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm px-3"
+                                    onclick="submitBulkAction('delete')">
+                                    <i class="bi bi-trash me-1"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        <form id="bulkActionForm" action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}"
+                            method="POST">
+                            <input type="hidden" name="action" value="appointment_action">
+                            <input type="hidden" name="apt_action" id="bulkAptAction" value="">
+
+                            <div class="activity-list mt-4">
+                                {% if appointments|length > 0 %}
+                                {% for apt in appointments %}
+                                <div class="appointment-item-card reveal" data-status="{{ apt.status }}">
+                                    <div class="appt-checkbox-wrap">
+                                        <input type="checkbox" name="appointment_id[]" value="{{ apt.id }}"
+                                            class="appt-checkbox">
+                                    </div>
+                                    <div class="appt-info-main">
+                                        <h6 class="appt-customer-name mb-0">{{ apt.customer_name }}</h6>
+                                        <div
+                                            class="appt-status-pill {% if apt.status == 'approved' %}status-approved{% elif apt.status == 'declined' %}status-declined{% else %}status-pending{% endif %}">
+                                            {{ apt.status|upper }}
+                                        </div>
+                                    </div>
+                                    <div class="appt-details-grid">
+                                        <div class="appt-detail-item" title="Mobile">
+                                            <i class="bi bi-telephone"></i>
+                                            {{ apt.customer_mobile or 'No Phone' }}
+                                        </div>
+                                        <div class="appt-detail-item" title="Email">
+                                            <i class="bi bi-envelope"></i>
+                                            {{ apt.customer_email or 'No Email' }}
+                                        </div>
+                                        <div class="appt-detail-item" title="Appointment Time">
+                                            <i class="bi bi-calendar-event"></i>
+                                            {{ apt.preferred_time }}
+                                        </div>
+                                    </div>
+                                    <div class="appt-quick-actions">
+                                        <span class="small text-muted fw-medium me-2" style="font-size: 0.75rem;">{{
+                                            apt.created_at.strftime('%d %b, %H:%M') }}</span>
+                                        {% if apt.status == 'pending' %}
+                                        <button type="button" class="btn btn-icon-only"
+                                            onclick="individualAction('{{ apt.id }}', 'approve')" title="Approve">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-icon-only"
+                                            onclick="individualAction('{{ apt.id }}', 'decline')" title="Decline">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-icon-only text-danger"
+                                            onclick="individualAction('{{ apt.id }}', 'delete')" title="Delete">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 {% endfor %}
                                 {% else %}
-                                <div class="p-5 text-center text-muted small">
-                                    <i class="bi bi-chat-dots d-block h2 opacity-25 mb-3"></i>
-                                    No conversations yet
+                                <div class="p-5 text-center text-muted bg-elevated rounded-4 border border-dashed">
+                                    <i class="bi bi-inbox mb-3 h1 opacity-25 d-block"></i>
+                                    <h6 class="fw-bold">No leads found</h6>
+                                    <p class="mb-0 small">Incoming appointments will appear here.</p>
                                 </div>
                                 {% endif %}
                             </div>
-                        </div>
-                        <div class="col-md-8 log-transcript-area" id="transcriptDisplay">
-                            {% if chatbot.conversations %}
-                            {% set first_conv = chatbot.conversations|sort(attribute='last_updated',
-                            reverse=True)|first %}
-                            {% if first_conv and first_conv.messages %}
-                            {% for msg in first_conv.messages %}
-                            <div class="log-msg {{ msg.role }} reveal">
-                                <div class="fw-bold small mb-1 opacity-50" style="font-size: 0.6rem;">{{
-                                    msg.role|upper }}</div>
-                                {{ msg.content }}
-                            </div>
-                            {% endfor %}
-                            {% else %}
-                            <div class="h-100 d-flex align-items-center justify-content-center text-muted">
-                                No
-                                messages in this session</div>
-                            {% endif %}
-                            {% else %}
-                            <div class="h-100 d-flex align-items-center justify-content-center text-muted">
-                                Select a session to view transcript
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Hidden Templates for JS (Server-side rendered logs) -->
-                    <div id="conversationDataTemplates" style="display:none;">
-                        {% for conv in chatbot.conversations %}
-                        <div id="template-{{ conv.id }}">
-                            {% for msg in conv.messages %}
-                            <div class="log-msg {{ msg.role }}">
-                                <div class="fw-bold small mb-1 opacity-50" style="font-size: 0.6rem;">{{
-                                    msg.role|upper }}</div>
-                                {{ msg.content }}
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section: Action Center -->
-    <section id="actions" class="settings-section reveal">
-        <div class="settings-section-header">
-            <h4 class="mb-1 fw-bold">Action Center (Booking)</h4>
-            <p class="text-secondary small mb-0">Manage customer appointments and lead capture logic.</p>
-        </div>
-        <div class="settings-section-body">
-            <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST"
-                class="mb-5 pb-5 border-bottom border-secondary border-opacity-10">
-                <input type="hidden" name="action" value="save_appointments">
-
-                <div class="row g-4 align-items-center mb-4">
-                    <div class="col-md-8">
-                        <h6 class="fw-bold mb-1">Enable Booking Engine</h6>
-                        <p class="text-muted small mb-0">Allow customers to request appointments through the
-                            AI
-                            agent.</p>
-                    </div>
-                    <div class="col-md-4 text-md-end">
-                        <div class="form-check form-switch ps-0 d-inline-block">
-                            <input class="form-check-input ms-0" type="checkbox" name="appointment_enabled"
-                                style="transform: scale(1.4);" {% if chatbot.appointment_enabled %}checked{% endif %}>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-4">
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Conversational Welcome Prompt</label>
-                        <input type="text" class="form-control" name="appointment_message"
-                            value="{{ apt_config.custom_message or 'To book, please provide your details below.' }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Availability Slots</label>
-                        <input type="text" class="form-control" name="appointment_slots"
-                            value="{{ apt_config.time_slots or '9:00 AM, 11:00 AM, 2:00 PM, 4:00 PM' }}"
-                            placeholder="e.g. 10 AM, 2 PM, 4 PM">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Dynamic Booking Rules</label>
-                        <input type="text" class="form-control" name="booking_rules"
-                            value="{{ apt_config.booking_rules or 'Please book at least 24 hours in advance.' }}">
-                    </div>
-                </div>
-                <div class="mt-4 text-end">
-                    <button type="submit" class="btn btn-premium px-4">Save Configuration</button>
-                </div>
-            </form>
-
-            <!-- Premium Industrial Action Center -->
-            <div class="mt-5">
-                <div class="d-flex justify-content-between align-items-end mb-4 px-2">
-                    <div>
-                        <h4 class="mb-1 fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i>Action
-                            Center</h4>
-                        <p class="text-secondary small mb-0">High-density lead management & processing.</p>
-                    </div>
-                    <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST">
-                        <input type="hidden" name="action" value="appointment_action">
-                        <input type="hidden" name="apt_action" value="approve_all">
-                        <button type="submit" class="btn btn-glass btn-sm px-3">
-                            <i class="bi bi-check-all me-1"></i> Approve All
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Bulk Actions Floating Bar -->
-                <div id="bulkActionsBar" class="bulk-actions-bar">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="form-check mb-0">
-                            <input class="form-check-input" type="checkbox" id="selectAllCheckboxes"
-                                style="width: 20px; height: 20px;">
-                        </div>
-                        <span class="fw-bold" id="selectedCountText">0 selected</span>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-success btn-sm px-3" onclick="submitBulkAction('approve')">
-                            <i class="bi bi-check-circle me-1"></i> Approve
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm px-3" onclick="submitBulkAction('decline')">
-                            <i class="bi bi-slash-circle me-1"></i> Decline
-                        </button>
-                        <button type="button" class="btn btn-outline-danger btn-sm px-3"
-                            onclick="submitBulkAction('delete')">
-                            <i class="bi bi-trash me-1"></i> Delete
-                        </button>
-                    </div>
-                </div>
-
-                <form id="bulkActionForm" action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}"
-                    method="POST">
-                    <input type="hidden" name="action" value="appointment_action">
-                    <input type="hidden" name="apt_action" id="bulkAptAction" value="">
-
-                    <div class="activity-list mt-4">
-                        {% if appointments|length > 0 %}
-                        {% for apt in appointments %}
-                        <div class="appointment-item-card reveal" data-status="{{ apt.status }}">
-                            <div class="appt-checkbox-wrap">
-                                <input type="checkbox" name="appointment_id[]" value="{{ apt.id }}"
-                                    class="appt-checkbox">
-                            </div>
-                            <div class="appt-info-main">
-                                <h6 class="appt-customer-name mb-0">{{ apt.customer_name }}</h6>
-                                <div
-                                    class="appt-status-pill {% if apt.status == 'approved' %}status-approved{% elif apt.status == 'declined' %}status-declined{% else %}status-pending{% endif %}">
-                                    {{ apt.status|upper }}
-                                </div>
-                            </div>
-                            <div class="appt-details-grid">
-                                <div class="appt-detail-item" title="Mobile">
-                                    <i class="bi bi-telephone"></i>
-                                    {{ apt.customer_mobile or 'No Phone' }}
-                                </div>
-                                <div class="appt-detail-item" title="Email">
-                                    <i class="bi bi-envelope"></i>
-                                    {{ apt.customer_email or 'No Email' }}
-                                </div>
-                                <div class="appt-detail-item" title="Appointment Time">
-                                    <i class="bi bi-calendar-event"></i>
-                                    {{ apt.preferred_time }}
-                                </div>
-                            </div>
-                            <div class="appt-quick-actions">
-                                <span class="small text-muted fw-medium me-2" style="font-size: 0.75rem;">{{
-                                    apt.created_at.strftime('%d %b, %H:%M') }}</span>
-                                {% if apt.status == 'pending' %}
-                                <button type="button" class="btn btn-icon-only"
-                                    onclick="individualAction('{{ apt.id }}', 'approve')" title="Approve">
-                                    <i class="bi bi-check-lg"></i>
-                                </button>
-                                <button type="button" class="btn btn-icon-only"
-                                    onclick="individualAction('{{ apt.id }}', 'decline')" title="Decline">
-                                    <i class="bi bi-x-circle"></i>
-                                </button>
-                                {% endif %}
-                                <button type="button" class="btn btn-icon-only text-danger"
-                                    onclick="individualAction('{{ apt.id }}', 'delete')" title="Delete">
-                                    <i class="bi bi-trash3"></i>
-                                </button>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        {% else %}
-                        <div class="p-5 text-center text-muted bg-elevated rounded-4 border border-dashed">
-                            <i class="bi bi-inbox mb-3 h1 opacity-25 d-block"></i>
-                            <h6 class="fw-bold">No leads found</h6>
-                            <p class="mb-0 small">Incoming appointments will appear here.</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section: Branding -->
-    <section id="branding" class="settings-section reveal">
-        <div class="settings-section-header">
-            <h4 class="mb-1 fw-bold"><i class="bi bi-palette me-2 text-primary"></i>Branding Studio</h4>
-            <p class="text-secondary small mb-0">Personalize your agent's visual identity with real-time
-                preview.</p>
-        </div>
-        <div class="settings-section-body">
-            <div class="row g-5">
-                <div class="col-lg-7">
-                    <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST"
-                        id="stylingForm">
-                        <input type="hidden" name="action" value="save_styling">
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Primary Brand Color</label>
-                                <div class="d-flex gap-3 align-items-center">
-                                    <input type="color" class="form-control form-control-color p-0 border-0"
-                                        name="primary_color" id="primary_color"
-                                        value="{{ style_config.primary_color or '#6366f1' }}"
-                                        style="width: 50px; height: 50px; border-radius: 12px; cursor: pointer;"
-                                        oninput="updatePreview()">
-                                    <input type="text" class="form-control font-monospace"
-                                        value="{{ style_config.primary_color or '#6366f1' }}" readonly
-                                        style="max-width: 100px; font-size: 0.85rem;">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Theme Mode</label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" class="btn-check" name="theme_mode" id="theme-light"
-                                        value="light" {% if style_config.theme_mode !='dark' %}checked{% endif %}
-                                        onchange="updatePreview()">
-                                    <label class="btn btn-glass flex-fill" for="theme-light"><i
-                                            class="bi bi-sun me-1"></i> Light</label>
-
-                                    <input type="radio" class="btn-check" name="theme_mode" id="theme-dark" value="dark"
-                                        {% if style_config.theme_mode=='dark' %}checked{% endif %}
-                                        onchange="updatePreview()">
-                                    <label class="btn btn-glass flex-fill" for="theme-dark"><i
-                                            class="bi bi-moon-stars me-1"></i> Dark</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Widget Position</label>
-                                <select class="form-select" name="widget_position" id="widget_position"
-                                    onchange="updatePreview()">
-                                    <option value="right" {% if style_config.widget_position !='left' %}selected{% endif
-                                        %}>Bottom Right</option>
-                                    <option value="left" {% if style_config.widget_position=='left' %}selected{% endif
-                                        %}>Bottom Left</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Bubble Radius</label>
-                                <select class="form-select" name="bubble_radius" id="bubble_radius"
-                                    onchange="updatePreview()">
-                                    <option value="4px" {% if style_config.bubble_radius=='4px' %}selected{% endif %}>
-                                        Sharp (Modern)</option>
-                                    <option value="12px" {% if style_config.bubble_radius=='12px' %}selected{% endif %}>
-                                        Soft (Premium)</option>
-                                    <option value="24px" {% if style_config.bubble_radius=='24px' or not
-                                        style_config.bubble_radius %}selected{% endif %}>Round (Classic)
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label fw-bold">Launcher Label text (Optional)</label>
-                                <input type="text" class="form-control" name="launcher_text" id="launcher_text"
-                                    value="{{ style_config.launcher_text or '' }}" placeholder="e.g. Chat with us!"
-                                    oninput="updatePreview()">
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label fw-bold">Welcome Message</label>
-                                <input type="text" class="form-control" name="welcome_message" id="welcome_message"
-                                    value="{{ style_config.welcome_message or '' }}"
-                                    placeholder="e.g. Hi there! How can I assist you today?" oninput="updatePreview()">
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label fw-bold">Suggestion Chips</label>
-                                <textarea class="form-control" name="suggestion_chips" id="suggestion_chips" rows="2"
-                                    placeholder="e.g. What services do you offer?, Book an appointment, Pricing info"
-                                    oninput="updatePreview()">{{ style_config.suggestion_chips or '' }}</textarea>
-                                <div class="form-text mt-1 small">Comma-separated quick-start prompts shown
-                                    to
-                                    users on first visit.</div>
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label fw-bold">Header Style</label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" class="btn-check" name="header_style" id="header-glass"
-                                        value="glass" {% if style_config.header_style !='solid' %}checked{% endif %}
-                                        onchange="updatePreview()">
-                                    <label class="btn btn-glass flex-fill" for="header-glass"><i
-                                            class="bi bi-droplet-half me-1"></i> Glass</label>
-                                    <input type="radio" class="btn-check" name="header_style" id="header-solid"
-                                        value="solid" {% if style_config.header_style=='solid' %}checked{% endif %}
-                                        onchange="updatePreview()">
-                                    <label class="btn btn-glass flex-fill" for="header-solid"><i
-                                            class="bi bi-square-fill me-1"></i> Solid</label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 mt-2">
-                                <label class="form-label fw-bold">Widget Launcher Icon</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    {% for icon in ['bi-robot', 'bi-chat-dots', 'bi-stars',
-                                    'bi-lightning-charge', 'bi-heart-fill', 'bi-question-circle'] %}
-                                    <input type="radio" class="btn-check" name="bot_icon" id="icon-{{ icon }}"
-                                        value="{{ icon }}" {% if style_config.bot_icon==icon or (not
-                                        style_config.bot_icon and icon=='bi-robot' ) %}checked{% endif %}
-                                        onchange="updatePreview()">
-                                    <label class="btn btn-glass p-0 d-flex align-items-center justify-content-center"
-                                        for="icon-{{ icon }}" style="width: 44px; height: 44px; border-radius: 12px;">
-                                        <i class="bi {{ icon }} h5 mb-0"></i>
-                                    </label>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-3 text-end">
-                            <button type="submit" class="btn btn-premium px-5">Publish Branding</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-lg-5">
-                    <div class="live-preview-wrapper position-sticky" style="top: 3rem;">
-                        <div class="d-flex justify-content-between align-items-center mb-3 text-muted px-2">
-                            <span class="small fw-bold text-uppercase letter-spacing-1">Live Preview</span>
-                            <span
-                                class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20"
-                                style="font-size: 0.65rem;">REAL-TIME</span>
-                        </div>
-                        <div class="preview-container industrial-shadow" id="chatPreviewFrame">
-                            <!-- Premium Preview Window -->
-                            <div class="preview-window mx-auto overflow-hidden" id="preview-window-container">
-
-                                <!-- Glassmorphic Header -->
-                                <div class="p-3 d-flex align-items-center justify-content-between position-relative"
-                                    style="background: rgba(14,14,20,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.06);"
-                                    id="preview-header">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="d-flex align-items-center justify-content-center text-white"
-                                            style="width: 34px; height: 34px; background: linear-gradient(135deg, {{ style_config.primary_color or '#6366f1' }}, {{ style_config.primary_color or '#6366f1' }}cc); border-radius: 11px; font-size: 0.9rem; box-shadow: 0 4px 12px {{ style_config.primary_color or '#6366f1' }}30;"
-                                            id="preview-icon-bg">
-                                            <i class="bi {{ style_config.bot_icon or 'bi-robot' }}"
-                                                id="preview-icon"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold" style="font-size: 0.78rem; color: #f0f0f5;"
-                                                id="preview-biz-name">{{ chatbot.business_name }}</div>
-                                            <div
-                                                style="font-size: 0.6rem; color: #8b8b9e; display: flex; align-items: center; gap: 4px;">
-                                                <span
-                                                    style="width: 5px; height: 5px; background: #22c55e; border-radius: 50%; display: inline-block;"></span>
-                                                Online
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style="display: flex; gap: 2px;">
-                                        <span style="color: #8b8b9e; font-size: 0.8rem; padding: 4px;"><i
-                                                class="bi bi-sun-fill"></i></span>
-                                        <span style="color: #8b8b9e; font-size: 0.8rem; padding: 4px;"><i
-                                                class="bi bi-arrow-counterclockwise"></i></span>
-                                    </div>
-                                    <!-- Accent gradient line -->
-                                    <div
-                                        style="position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, {{ style_config.primary_color or '#6366f1' }}, transparent); opacity: 0.4;">
-                                    </div>
-                                </div>
-
-                                <!-- Messages Preview -->
-                                <div class="p-3 d-flex flex-column gap-2"
-                                    style="min-height: 260px; background: #0a0a0f;" id="preview-body">
-                                    <!-- Bot bubble (glass) -->
-                                    <div class="p-2 px-3"
-                                        style="max-width: 82%; font-size: 0.72rem; color: #f0f0f5; background: rgba(28,28,36,0.85); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px 14px 14px 5px; line-height: 1.5;"
-                                        id="preview-welcome-bubble">
-                                        {{ style_config.welcome_message or 'Hi! I\'m your AI assistant. How
-                                        can
-                                        I help you today?' }}
-                                    </div>
-                                    <!-- User bubble (gradient) -->
-                                    <div class="p-2 px-3 ms-auto text-white"
-                                        style="max-width: 72%; font-size: 0.72rem; background: linear-gradient(135deg, {{ style_config.primary_color or '#6366f1' }}, {{ style_config.primary_color or '#6366f1' }}cc); border-radius: 14px 14px 5px 14px; box-shadow: 0 3px 12px {{ style_config.primary_color or '#6366f1' }}25;"
-                                        id="preview-user-bubble">
-                                        I need help with my booking.
-                                    </div>
-                                    <!-- Shimmer indicator -->
-                                    <div class="p-2 px-3"
-                                        style="max-width: 55%; background: rgba(28,28,36,0.85); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px 14px 14px 5px;">
-                                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                                            <div
-                                                style="height: 6px; width: 80px; border-radius: 3px; background: rgba(255,255,255,0.08);">
-                                            </div>
-                                            <div
-                                                style="height: 6px; width: 110px; border-radius: 3px; background: rgba(255,255,255,0.05);">
-                                            </div>
-                                            <div
-                                                style="height: 6px; width: 55px; border-radius: 3px; background: rgba(255,255,255,0.04);">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Input Preview -->
-                                <div class="px-3 pb-2" style="background: #0a0a0f;">
-                                    <div class="d-flex gap-2 align-items-center"
-                                        style="background: rgba(24,24,32,0.75); border: 1px solid rgba(255,255,255,0.06); border-radius: 100px; padding: 5px 6px 5px 14px;">
-                                        <span style="font-size: 0.68rem; color: #5a5a6e; flex: 1;">Ask me
-                                            anything...</span>
-                                        <div
-                                            style="width: 28px; height: 28px; background: linear-gradient(135deg, {{ style_config.primary_color or '#6366f1' }}, {{ style_config.primary_color or '#6366f1' }}cc); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7rem;">
-                                            <i class="bi bi-arrow-up"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Powered By -->
-                                <div style="text-align: center; padding: 2px 0 8px; background: #0a0a0f;">
-                                    <span style="font-size: 0.52rem; color: #5a5a6e; font-weight: 500;"><i
-                                            class="bi bi-lightning-charge-fill" style="font-size: 0.45rem;"></i>
-                                        Powered by BPA-Flow</span>
-                                </div>
-                            </div>
-
-                            <!-- Launcher Preview -->
-                            <div class="mt-4 d-flex align-items-center gap-3" id="launcher-preview-row"
-                                style="justify-content: flex-end;">
-                                <div class="launcher-label-preview shadow-sm px-3 py-2 bg-white rounded-pill border small fw-bold"
-                                    id="preview-launcher-label"
-                                    style="display: {% if style_config.launcher_text %}block{% else %}none{% endif %};">
-                                    {{ style_config.launcher_text }}
-                                </div>
-                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white"
-                                    style="width: 50px; height: 50px; background: linear-gradient(135deg, {{ style_config.primary_color or '#6366f1' }}, {{ style_config.primary_color or '#6366f1' }}cc); font-size: 1.35rem; box-shadow: 0 6px 24px {{ style_config.primary_color or '#6366f1' }}40;"
-                                    id="preview-launcher-icon">
-                                    <i class="bi {{ style_config.bot_icon or 'bi-robot' }}"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section: Connection Hub -->
-    <section id="connect" class="settings-section reveal">
-        <div class="settings-section-header">
-            <h4 class="mb-1 fw-bold"><i class="bi bi-plugin me-2 text-primary"></i>Connection Hub</h4>
-            <p class="text-secondary small mb-0">Integrate your agent with external channels like Telegram.
-            </p>
-        </div>
-        <div class="settings-section-body">
-            <!-- Telegram Integration -->
-            <div class="mb-0">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <div>
-                        <h6 class="fw-bold mb-1"><i class="bi bi-telegram me-2 text-info"></i>Telegram
-                            Notification Sync</h6>
-                        <p class="text-muted small mb-0">Receive instant alerts on your mobile when leads
-                            are
-                            generated.</p>
-                    </div>
-                    <div
-                        class="status-badge {% if chatbot.telegram_bot_token %}status-approved{% else %}status-pending{% endif %}">
-                        <i
-                            class="bi {% if chatbot.telegram_bot_token %}bi-check-circle{% else %}bi-exclamation-triangle{% endif %}"></i>
-                        {% if chatbot.telegram_bot_token %}Active{% else %}Inactive{% endif %}
-                    </div>
-                </div>
-
-                <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST">
-                    <input type="hidden" name="action" value="save_telegram">
-                    <div class="row g-4">
-                        <div class="col-md-7">
-                            <label class="form-label fw-semibold">Bot API Token</label>
-                            <input type="password" class="form-control" name="telegram_bot_token"
-                                value="{{ chatbot.telegram_bot_token or '' }}"
-                                placeholder="Enter Token (123456789:ABC...)">
-                            <div class="form-text mt-2 small">Get yours from <a href="https://t.me/BotFather"
-                                    target="_blank">@BotFather</a></div>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label fw-semibold">Your Chat ID</label>
-                            <input type="text" class="form-control" name="telegram_chat_id"
-                                value="{{ chatbot.telegram_chat_id or '' }}" placeholder="Enter Chat ID (987654321)">
-                            <div class="form-text mt-2 small">Find yours via <a href="https://t.me/userinfobot"
-                                    target="_blank">@userinfobot</a></div>
-                        </div>
-                    </div>
-                    <div class="mt-4 d-flex justify-content-end gap-2">
-                        <button type="submit" class="btn btn-premium px-4">Update Connection</button>
-                    </div>
-                </form>
-
-                <div class="mt-4 p-4 rounded-4 bg-info bg-opacity-5 border border-info border-opacity-10">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h6 class="fw-bold mb-1"><i class="bi bi-gear-wide-connected me-2"></i>Live Webhook Setup
-                            </h6>
-                            <p class="text-muted small mb-0">Recommended for Render.com to ensure real-time delivery and
-                                reliable tunneling.</p>
-                        </div>
-                        <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST">
-                            <input type="hidden" name="action" value="setup_webhook">
-                            <button type="submit" class="btn btn-glass btn-sm px-3">
-                                <i class="bi bi-lightning-fill me-1"></i> Force Webhook Sync
-                            </button>
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
+            </section>
 
-    <!-- Section: Embedded -->
-    <section id="embedded" class="settings-section reveal">
-        <div class="settings-section-header">
-            <h4 class="mb-1 fw-bold"><i class="bi bi-code-slash me-2 text-primary"></i>Embedded Deployment
-            </h4>
-            <p class="text-secondary small mb-0">Deploy your agent to any website with a single line of
-                code.
-            </p>
-        </div>
-        <div class="settings-section-body">
-            <div class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-4 pe-4">
-                    <h6 class="fw-bold mb-0">
-                        <i class="bi bi-window-stack me-2 text-warning"></i> Website Implementation Suite
-                    </h6>
+            <!-- Section: Branding -->
+            <section id="branding" class="settings-section reveal">
+                <div class="settings-section-header">
+                    <h4 class="mb-1 fw-bold"><i class="bi bi-palette me-2 text-primary"></i>Branding Studio</h4>
+                    <p class="text-secondary small mb-0">Personalize your agent's visual identity with real-time
+                        preview.</p>
                 </div>
+                <div class="settings-section-body">
+                    <div class="row g-5">
+                        <div class="col-lg-7">
+                            <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST"
+                                id="stylingForm">
+                                <input type="hidden" name="action" value="save_styling">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Primary Brand Color</label>
+                                        <div class="d-flex gap-3 align-items-center">
+                                            <input type="color" class="form-control form-control-color p-0 border-0"
+                                                name="primary_color" id="primary_color"
+                                                value="{{ style_config.primary_color or '#6366f1' }}"
+                                                style="width: 50px; height: 50px; border-radius: 12px; cursor: pointer;"
+                                                oninput="updatePreview()">
+                                            <input type="text" class="form-control font-monospace"
+                                                value="{{ style_config.primary_color or '#6366f1' }}" readonly
+                                                style="max-width: 100px; font-size: 0.85rem;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Theme Mode</label>
+                                        <div class="d-flex gap-2">
+                                            <input type="radio" class="btn-check" name="theme_mode" id="theme-light"
+                                                value="light" {% if style_config.theme_mode !='dark' %}checked{% endif
+                                                %} onchange="updatePreview()">
+                                            <label class="btn btn-glass flex-fill" for="theme-light"><i
+                                                    class="bi bi-sun me-1"></i> Light</label>
 
-                <div class="row g-4">
-                    <div class="col-12">
-                        <div
-                            class="bg-elevated p-4 rounded-4 border border-secondary border-opacity-10 industrial-shadow">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="fw-bold mb-0 small text-uppercase letter-spacing-1">Direct Chat
-                                    URL
-                                </h6>
-                                <button class="btn btn-glass btn-sm"
-                                    onclick="copyToClipboard('direct-link', false, 'Link Copied!', this)">
-                                    <i class="bi bi-link-45deg me-1"></i> Copy Link
-                                </button>
+                                            <input type="radio" class="btn-check" name="theme_mode" id="theme-dark"
+                                                value="dark" {% if style_config.theme_mode=='dark' %}checked{% endif %}
+                                                onchange="updatePreview()">
+                                            <label class="btn btn-glass flex-fill" for="theme-dark"><i
+                                                    class="bi bi-moon-stars me-1"></i> Dark</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Widget Position</label>
+                                        <select class="form-select" name="widget_position" id="widget_position"
+                                            onchange="updatePreview()">
+                                            <option value="right" {% if style_config.widget_position !='left'
+                                                %}selected{% endif %}>Bottom Right</option>
+                                            <option value="left" {% if style_config.widget_position=='left' %}selected{%
+                                                endif %}>Bottom Left</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Bubble Radius</label>
+                                        <select class="form-select" name="bubble_radius" id="bubble_radius"
+                                            onchange="updatePreview()">
+                                            <option value="4px" {% if style_config.bubble_radius=='4px' %}selected{%
+                                                endif %}>
+                                                Sharp (Modern)</option>
+                                            <option value="12px" {% if style_config.bubble_radius=='12px' %}selected{%
+                                                endif %}>
+                                                Soft (Premium)</option>
+                                            <option value="24px" {% if style_config.bubble_radius=='24px' or not
+                                                style_config.bubble_radius %}selected{% endif %}>Round (Classic)
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Launcher Label text (Optional)</label>
+                                        <input type="text" class="form-control" name="launcher_text" id="launcher_text"
+                                            value="{{ style_config.launcher_text or '' }}"
+                                            placeholder="e.g. Chat with us!" oninput="updatePreview()">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Welcome Message</label>
+                                        <input type="text" class="form-control" name="welcome_message"
+                                            id="welcome_message" value="{{ style_config.welcome_message or '' }}"
+                                            placeholder="e.g. Hi there! How can I assist you today?"
+                                            oninput="updatePreview()">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Suggestion Chips</label>
+                                        <textarea class="form-control" name="suggestion_chips" id="suggestion_chips"
+                                            rows="2"
+                                            placeholder="e.g. What services do you offer?, Book an appointment, Pricing info"
+                                            oninput="updatePreview()">{{ style_config.suggestion_chips or '' }}</textarea>
+                                        <div class="form-text mt-1 small">Comma-separated quick-start prompts shown
+                                            to
+                                            users on first visit.</div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Header Style</label>
+                                        <div class="d-flex gap-2">
+                                            <input type="radio" class="btn-check" name="header_style" id="header-glass"
+                                                value="glass" {% if style_config.header_style !='solid' %}checked{%
+                                                endif %} onchange="updatePreview()">
+                                            <label class="btn btn-glass flex-fill" for="header-glass"><i
+                                                    class="bi bi-droplet-half me-1"></i> Glass</label>
+                                            <input type="radio" class="btn-check" name="header_style" id="header-solid"
+                                                value="solid" {% if style_config.header_style=='solid' %}checked{% endif
+                                                %} onchange="updatePreview()">
+                                            <label class="btn btn-glass flex-fill" for="header-solid"><i
+                                                    class="bi bi-square-fill me-1"></i> Solid</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <label class="form-label fw-bold">Widget Launcher Icon</label>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for icon in ['bi-robot', 'bi-chat-dots', 'bi-stars',
+                                            'bi-lightning-charge', 'bi-heart-fill', 'bi-question-circle'] %}
+                                            <input type="radio" class="btn-check" name="bot_icon" id="icon-{{ icon }}"
+                                                value="{{ icon }}" {% if style_config.bot_icon==icon or (not
+                                                style_config.bot_icon and icon=='bi-robot' ) %}checked{% endif %}
+                                                onchange="updatePreview()">
+                                            <label
+                                                class="btn btn-glass p-0 d-flex align-items-center justify-content-center"
+                                                for="icon-{{ icon }}"
+                                                style="width: 44px; height: 44px; border-radius: 12px;">
+                                                <i class="bi {{ icon }} h5 mb-0"></i>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 text-end">
+                                    <button type="submit" class="btn btn-premium px-5">Publish Branding</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="live-preview-wrapper position-sticky" style="top: 3rem;">
+                                <div class="d-flex justify-content-between align-items-center mb-3 text-muted px-2">
+                                    <span class="small fw-bold text-uppercase letter-spacing-1">Live Preview</span>
+                                    <span
+                                        class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20"
+                                        style="font-size: 0.65rem;">REAL-TIME</span>
+                                </div>
+                                <div class="preview-container industrial-shadow" id="chatPreviewFrame">
+                                    <!-- Premium Preview Window -->
+                                    <div class="preview-window mx-auto overflow-hidden" id="preview-window-container">
+
+                                        <!-- Glassmorphic Header -->
+                                        <div class="p-3 d-flex align-items-center justify-content-between position-relative"
+                                            style="background: rgba(14,14,20,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.06);"
+                                            id="preview-header">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="d-flex align-items-center justify-content-center text-white"
+                                                    style="width: 34px; height: 34px; background: linear-gradient(135deg, {{ style_config.primary_color or '#6366f1' }}, {{ style_config.primary_color or '#6366f1' }}cc); border-radius: 11px; font-size: 0.9rem; box-shadow: 0 4px 12px {{ style_config.primary_color or '#6366f1' }}30;"
+                                                    id="preview-icon-bg">
+                                                    <i class="bi {{ style_config.bot_icon or 'bi-robot' }}"
+                                                        id="preview-icon"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold" style="font-size: 0.78rem; color: #f0f0f5;"
+                                                        id="preview-biz-name">{{ chatbot.business_name }}</div>
+                                                    <div
+                                                        style="font-size: 0.6rem; color: #8b8b9e; display: flex; align-items: center; gap: 4px;">
+                                                        <span
+                                                            style="width: 5px; height: 5px; background: #22c55e; border-radius: 50%; display: inline-block;"></span>
+                                                        Online
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; gap: 2px;">
+                                                <span style="color: #8b8b9e; font-size: 0.8rem; padding: 4px;"><i
+                                                        class="bi bi-sun-fill"></i></span>
+                                                <span style="color: #8b8b9e; font-size: 0.8rem; padding: 4px;"><i
+                                                        class="bi bi-arrow-counterclockwise"></i></span>
+                                            </div>
+                                            <!-- Accent gradient line -->
+                                            <div
+                                                style="position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, {{ style_config.primary_color or '#6366f1' }}, transparent); opacity: 0.4;">
+                                            </div>
+                                        </div>
+
+                                        <!-- Messages Preview -->
+                                        <div class="p-3 d-flex flex-column gap-2"
+                                            style="min-height: 260px; background: #0a0a0f;" id="preview-body">
+                                            <!-- Bot bubble (glass) -->
+                                            <div class="p-2 px-3"
+                                                style="max-width: 82%; font-size: 0.72rem; color: #f0f0f5; background: rgba(28,28,36,0.85); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px 14px 14px 5px; line-height: 1.5;"
+                                                id="preview-welcome-bubble">
+                                                {{ style_config.welcome_message or 'Hi! I\'m your AI assistant. How
+                                                can
+                                                I help you today?' }}
+                                            </div>
+                                            <!-- User bubble (gradient) -->
+                                            <div class="p-2 px-3 ms-auto text-white"
+                                                style="max-width: 72%; font-size: 0.72rem; background: linear-gradient(135deg, {{ style_config.primary_color or '#6366f1' }}, {{ style_config.primary_color or '#6366f1' }}cc); border-radius: 14px 14px 5px 14px; box-shadow: 0 3px 12px {{ style_config.primary_color or '#6366f1' }}25;"
+                                                id="preview-user-bubble">
+                                                I need help with my booking.
+                                            </div>
+                                            <!-- Shimmer indicator -->
+                                            <div class="p-2 px-3"
+                                                style="max-width: 55%; background: rgba(28,28,36,0.85); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px 14px 14px 5px;">
+                                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                                    <div
+                                                        style="height: 6px; width: 80px; border-radius: 3px; background: rgba(255,255,255,0.08);">
+                                                    </div>
+                                                    <div
+                                                        style="height: 6px; width: 110px; border-radius: 3px; background: rgba(255,255,255,0.05);">
+                                                    </div>
+                                                    <div
+                                                        style="height: 6px; width: 55px; border-radius: 3px; background: rgba(255,255,255,0.04);">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Input Preview -->
+                                        <div class="px-3 pb-2" style="background: #0a0a0f;">
+                                            <div class="d-flex gap-2 align-items-center"
+                                                style="background: rgba(24,24,32,0.75); border: 1px solid rgba(255,255,255,0.06); border-radius: 100px; padding: 5px 6px 5px 14px;">
+                                                <span style="font-size: 0.68rem; color: #5a5a6e; flex: 1;">Ask me
+                                                    anything...</span>
+                                                <div
+                                                    style="width: 28px; height: 28px; background: linear-gradient(135deg, {{ style_config.primary_color or '#6366f1' }}, {{ style_config.primary_color or '#6366f1' }}cc); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7rem;">
+                                                    <i class="bi bi-arrow-up"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Powered By -->
+                                        <div style="text-align: center; padding: 2px 0 8px; background: #0a0a0f;">
+                                            <span style="font-size: 0.52rem; color: #5a5a6e; font-weight: 500;"><i
+                                                    class="bi bi-lightning-charge-fill" style="font-size: 0.45rem;"></i>
+                                                Powered by BPA-Flow</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Launcher Preview -->
+                                    <div class="mt-4 d-flex align-items-center gap-3" id="launcher-preview-row"
+                                        style="justify-content: flex-end;">
+                                        <div class="launcher-label-preview shadow-sm px-3 py-2 bg-white rounded-pill border small fw-bold"
+                                            id="preview-launcher-label"
+                                            style="display: {% if style_config.launcher_text %}block{% else %}none{% endif %};">
+                                            {{ style_config.launcher_text }}
+                                        </div>
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white"
+                                            style="width: 50px; height: 50px; background: linear-gradient(135deg, {{ style_config.primary_color or '#6366f1' }}, {{ style_config.primary_color or '#6366f1' }}cc); font-size: 1.35rem; box-shadow: 0 6px 24px {{ style_config.primary_color or '#6366f1' }}40;"
+                                            id="preview-launcher-icon">
+                                            <i class="bi {{ style_config.bot_icon or 'bi-robot' }}"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <input type="text" class="form-control font-monospace bg-dark bg-opacity-25"
-                                id="direct-link"
-                                value="{{ url_for('chat', config_id=chatbot.config_id, _external=True) }}" readonly>
-                            <p class="mt-2 mb-0 small text-muted">Use this for direct links in emails, QR
-                                codes,
-                                or social media.</p>
                         </div>
                     </div>
+                </div>
+            </section>
 
-                    <div class="col-12">
-                        <div class="bg-elevated p-4 rounded-4 border border-secondary border-opacity-10">
-                            <div class="mb-3 d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="fw-bold mb-1 small text-uppercase letter-spacing-1">Universal
-                                        Inline Snippet</h6>
-                                    <p class="small text-muted mb-0">Paste this into your
-                                        <code>&lt;head&gt;</code> tag to enable the chat bubble.
-                                    </p>
+            <!-- Section: Connection Hub -->
+            <section id="connect" class="settings-section reveal">
+                <div class="settings-section-header">
+                    <h4 class="mb-1 fw-bold"><i class="bi bi-plugin me-2 text-primary"></i>Connection Hub</h4>
+                    <p class="text-secondary small mb-0">Integrate your agent with external channels like Telegram.
+                    </p>
+                </div>
+                <div class="settings-section-body">
+                    <!-- Telegram Integration -->
+                    <div class="mb-0">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h6 class="fw-bold mb-1"><i class="bi bi-telegram me-2 text-info"></i>Telegram
+                                    Notification Sync</h6>
+                                <p class="text-muted small mb-0">Receive instant alerts on your mobile when leads
+                                    are
+                                    generated.</p>
+                            </div>
+                            <div
+                                class="status-badge {% if chatbot.telegram_bot_token %}status-approved{% else %}status-pending{% endif %}">
+                                <i
+                                    class="bi {% if chatbot.telegram_bot_token %}bi-check-circle{% else %}bi-exclamation-triangle{% endif %}"></i>
+                                {% if chatbot.telegram_bot_token %}Active{% else %}Inactive{% endif %}
+                            </div>
+                        </div>
+
+                        <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}" method="POST">
+                            <input type="hidden" name="action" value="save_telegram">
+                            <div class="row g-4">
+                                <div class="col-md-7">
+                                    <label class="form-label fw-semibold">Bot API Token</label>
+                                    <input type="password" class="form-control" name="telegram_bot_token"
+                                        value="{{ chatbot.telegram_bot_token or '' }}"
+                                        placeholder="Enter Token (123456789:ABC...)">
+                                    <div class="form-text mt-2 small">Get yours from <a href="https://t.me/BotFather"
+                                            target="_blank">@BotFather</a></div>
                                 </div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-premium text-white px-2 py-1"
-                                        style="font-size: 0.6rem;">RECOMMENDED</span>
-                                    <button class="btn btn-glass btn-sm px-3"
-                                        onclick="copyToClipboard('widget-code', true, 'Script Copied!', this)">
-                                        <i class="bi bi-clipboard me-1"></i> Copy Script
-                                    </button>
+                                <div class="col-md-5">
+                                    <label class="form-label fw-semibold">Your Chat ID</label>
+                                    <input type="text" class="form-control" name="telegram_chat_id"
+                                        value="{{ chatbot.telegram_chat_id or '' }}"
+                                        placeholder="Enter Chat ID (987654321)">
+                                    <div class="form-text mt-2 small">Find yours via <a href="https://t.me/userinfobot"
+                                            target="_blank">@userinfobot</a></div>
                                 </div>
                             </div>
-                            <div class="position-relative">
-                                <pre class="bg-dark p-4 rounded-4 font-monospace small mb-0 border border-secondary border-opacity-20"
-                                    id="widget-code" style="color: #6366f1; overflow-x: auto; line-height: 1.5;">&lt;!-- BPAFlow AI Chat Widget --&gt;
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <button type="submit" class="btn btn-premium px-4">Update Connection</button>
+                            </div>
+                        </form>
+
+                        <div class="mt-4 p-4 rounded-4 bg-info bg-opacity-5 border border-info border-opacity-10">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="fw-bold mb-1"><i class="bi bi-gear-wide-connected me-2"></i>Live Webhook
+                                        Setup
+                                    </h6>
+                                    <p class="text-muted small mb-0">Recommended for Render.com to ensure real-time
+                                        delivery and
+                                        reliable tunneling.</p>
+                                </div>
+                                <form action="{{ url_for('manage_chatbot', config_id=chatbot.config_id) }}"
+                                    method="POST">
+                                    <input type="hidden" name="action" value="setup_webhook">
+                                    <button type="submit" class="btn btn-glass btn-sm px-3">
+                                        <i class="bi bi-lightning-fill me-1"></i> Force Webhook Sync
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Embedded -->
+            <section id="embedded" class="settings-section reveal">
+                <div class="settings-section-header">
+                    <h4 class="mb-1 fw-bold"><i class="bi bi-code-slash me-2 text-primary"></i>Embedded Deployment
+                    </h4>
+                    <p class="text-secondary small mb-0">Deploy your agent to any website with a single line of
+                        code.
+                    </p>
+                </div>
+                <div class="settings-section-body">
+                    <div class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pe-4">
+                            <h6 class="fw-bold mb-0">
+                                <i class="bi bi-window-stack me-2 text-warning"></i> Website Implementation Suite
+                            </h6>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <div
+                                    class="bg-elevated p-4 rounded-4 border border-secondary border-opacity-10 industrial-shadow">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-bold mb-0 small text-uppercase letter-spacing-1">Direct Chat
+                                            URL
+                                        </h6>
+                                        <button class="btn btn-glass btn-sm"
+                                            onclick="copyToClipboard('direct-link', false, 'Link Copied!', this)">
+                                            <i class="bi bi-link-45deg me-1"></i> Copy Link
+                                        </button>
+                                    </div>
+                                    <input type="text" class="form-control font-monospace bg-dark bg-opacity-25"
+                                        id="direct-link"
+                                        value="{{ url_for('chat', config_id=chatbot.config_id, _external=True) }}"
+                                        readonly>
+                                    <p class="mt-2 mb-0 small text-muted">Use this for direct links in emails, QR
+                                        codes,
+                                        or social media.</p>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="bg-elevated p-4 rounded-4 border border-secondary border-opacity-10">
+                                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold mb-1 small text-uppercase letter-spacing-1">Universal
+                                                Inline Snippet</h6>
+                                            <p class="small text-muted mb-0">Paste this into your
+                                                <code>&lt;head&gt;</code> tag to enable the chat bubble.
+                                            </p>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-premium text-white px-2 py-1"
+                                                style="font-size: 0.6rem;">RECOMMENDED</span>
+                                            <button class="btn btn-glass btn-sm px-3"
+                                                onclick="copyToClipboard('widget-code', true, 'Script Copied!', this)">
+                                                <i class="bi bi-clipboard me-1"></i> Copy Script
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="position-relative">
+                                        <pre class="bg-dark p-4 rounded-4 font-monospace small mb-0 border border-secondary border-opacity-20"
+                                            id="widget-code"
+                                            style="color: #6366f1; overflow-x: auto; line-height: 1.5;">&lt;!-- BPAFlow AI Chat Widget --&gt;
 &lt;script&gt;
   window.BPAFlowConfig = {
     chatbot_id: "{{ chatbot.config_id }}",
@@ -948,25 +963,25 @@
   };
 &lt;/script&gt;
 &lt;script src="{{ url_for('static', filename='js/embed.js', _external=True) }}" async&gt;&lt;/script&gt;</pre>
-                            </div>
-                            <div class="mt-3 p-3 bg-secondary bg-opacity-5 rounded-3 border border-dashed">
-                                <p class="mb-0 small text-muted">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    <strong>Pro Tip:</strong> This script is asynchronous and won't affect
-                                    your
-                                    page load speed. It automatically handles positioning, mobile layouts,
-                                    and
-                                    theme consistency.
-                                </p>
+                                    </div>
+                                    <div class="mt-3 p-3 bg-secondary bg-opacity-5 rounded-3 border border-dashed">
+                                        <p class="mb-0 small text-muted">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            <strong>Pro Tip:</strong> This script is asynchronous and won't affect
+                                            your
+                                            page load speed. It automatically handles positioning, mobile layouts,
+                                            and
+                                            theme consistency.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-    </main>
-</div>
+            </section>
+        </main>
+    </div>
 </div>
 
 <script>

@@ -1299,10 +1299,16 @@ footer .bi {
 @media (max-width: 480px) {
     .manage-analytics-bar {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
 
     .metric-card-mini {
-        padding: 0.75rem;
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
+    }
+
+    .metric-info h5 {
+        font-size: 1.1rem;
     }
 }
 
@@ -2299,7 +2305,15 @@ input:checked+.slider:before {
     }
 
     .tab-content-container {
-        padding: 1.25rem;
+        padding: 1.25rem 1rem;
+    }
+
+    .settings-section-body {
+        padding: 1.25rem 1rem;
+    }
+
+    .settings-section-header {
+        padding: 1.25rem 1rem;
     }
 
     /* Stats */
